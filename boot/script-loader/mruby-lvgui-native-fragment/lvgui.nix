@@ -56,6 +56,7 @@ let
   libxkbcommon = pkgs.callPackage (
     { stdenv                                             
     , libxkbcommon                             
+    , libxml2                             
     , meson             
     , ninja                                         
     , pkgconfig               
@@ -64,7 +65,7 @@ let
 
     libxkbcommon.overrideAttrs({...}: {
       nativeBuildInputs = [ meson ninja pkgconfig yacc ];
-      buildInputs = [ ];                                     
+      buildInputs = [ libxml2 ];                                     
 
       mesonFlags = [   
         "-Denable-wayland=false"
@@ -85,6 +86,7 @@ let
         "out"
         "dev"
         stdenv.cc.libc_lib
+        libxml2
       ];
     })
 
