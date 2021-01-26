@@ -53,7 +53,7 @@ let
 
   # Shortcuts
   inherit (stdenv.lib) optionals optional optionalString;
-  inherit (stdenv.hostPlatform) platform;
+  inherit (stdenv.hostPlatform) linuxArch linux-kernel;
 
   maybeString = str: optionalString (str != null) str;
 in
@@ -71,11 +71,11 @@ in
 
 # Handling of QCDT dt.img
 , isQcdt ? false
-, qcdt_dtbs ? "arch/${platform.kernelArch}/boot/"
+, qcdt_dtbs ? "arch/${linuxArch}/boot/"
 
 # Handling of Exynos dt.img
 , isExynosDT ? false
-, exynos_dtbs ? "arch/${platform.kernelArch}/boot/dts/*.dtb"
+, exynos_dtbs ? "arch/${linuxArch}/boot/dts/*.dtb"
 , exynos_platform ? "0x50a6"
 , exynos_subtype  ? "0x217584da"
 
@@ -147,11 +147,11 @@ let
     exec ${buildPackages.pkgconfig}/bin/${buildPackages.pkgconfig.targetPrefix}pkg-config "$@"
   '';
 
-  hasDTB = platform ? kernelDTB && platform.kernelDTB;
+  hasDTB = linux-kernel ? DTB && linux-kernel.DTB;
   kernelFileExtension = if isCompressed != false then ".${isCompressed}" else "";
-  kernelTarget = if platform.kernelTarget == "Image"
-    then "${platform.kernelTarget}${kernelFileExtension}"
-    else platform.kernelTarget;
+  kernelTarget = if linux-kernel.target == "Image"
+    then "${linux-kernel.target}${kernelFileExtension}"
+    else linux-kernel.target;
 in
 
 # This `let` block allows us to have a self-reference to this derivation.
@@ -170,7 +170,7 @@ stdenv.mkDerivation (inputArgs // {
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
   nativeBuildInputs = [ perl bc nettools openssl rsync gmp libmpc mpfr ]
-    ++ optional (platform.kernelTarget == "uImage") buildPackages.ubootTools
+    ++ optional (linux-kernel.target == "uImage") buildPackages.ubootTools
     ++ optional (stdenv.lib.versionAtLeast version "4.14" && stdenv.lib.versionOlder version "5.8") libelf
     ++ optional (stdenv.lib.versionAtLeast version "4.15") utillinux
     ++ optionals (stdenv.lib.versionAtLeast version "4.16") [ bison flex ]
@@ -395,7 +395,7 @@ stdenv.mkDerivation (inputArgs // {
 
   '' + optionalString isImageGzDtb ''
     echo ":: Copying platform-specific -dtb image file"
-    cp -v "$buildRoot/arch/${platform.kernelArch}/boot/${kernelTarget}-dtb" "$out/"
+    cp -v "$buildRoot/arch/${linuxArch}/boot/${kernelTarget}-dtb" "$out/"
 
   ''
     + maybeString postInstall
@@ -407,12 +407,12 @@ stdenv.mkDerivation (inputArgs // {
     "O=$(buildRoot)"
     "CC=${stdenv.cc}/bin/${stdenv.cc.targetPrefix}cc"
     "HOSTCC=${buildPackages.stdenv.cc}/bin/${buildPackages.stdenv.cc.targetPrefix}cc"
-    "ARCH=${platform.kernelArch}"
+    "ARCH=${linuxArch}"
     "DTC_EXT=${buildPackages.dtc}/bin/dtc"
     "KBUILD_BUILD_VERSION=1-mobile-nixos"
   ]
   # Use platform-specific flags
-  ++ stdenv.lib.optionals (platform ? kernelMakeFlags) platform.kernelMakeFlags
+  ++ stdenv.lib.optionals (linux-kernel ? makeFlags) linux-kernel.makeFlags
   # Mark as cross-compilation
   ++ stdenv.lib.optional (stdenv.hostPlatform != stdenv.buildPlatform) [ "CROSS_COMPILE=${stdenv.cc.targetPrefix}" ]
   # User-provided makeFlags
@@ -524,8 +524,8 @@ stdenv.mkDerivation (inputArgs // {
         export PATH="$PATH:${buildPackages.gnumake}/bin"
         export KCONFIG_CONFIG="\$(readlink -f "\$1")"; shift
 
-        export SRCARCH="${platform.kernelArch}"
-        export ARCH="${platform.kernelArch}"
+        export SRCARCH="${linuxArch}"
+        export ARCH="${linuxArch}"
         export KERNELVERSION="${version}"
         cd "\$KERNEL_TREE"
         ${/* We're expanding the builder's makeFlags variable here. This is not a mistake. */""}
