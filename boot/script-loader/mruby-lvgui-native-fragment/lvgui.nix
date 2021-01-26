@@ -56,7 +56,6 @@ let
   libxkbcommon = pkgs.callPackage (
     { stdenv                                             
     , libxkbcommon                             
-    , libxml2                             
     , meson             
     , ninja                                         
     , pkgconfig               
@@ -65,12 +64,13 @@ let
 
     libxkbcommon.overrideAttrs({...}: {
       nativeBuildInputs = [ meson ninja pkgconfig yacc ];
-      buildInputs = [ libxml2 ];                                     
+      buildInputs = [ ];                                     
 
       mesonFlags = [   
         "-Denable-wayland=false"
         "-Denable-x11=false"             
         "-Denable-docs=false"            
+        "-Denable-xkbregistry=false"             
 
         # This is because we're forcing uses of this build
         # to define config and locale root; for stage-1 use.
@@ -86,7 +86,6 @@ let
         "out"
         "dev"
         stdenv.cc.libc_lib
-        libxml2
       ];
     })
 
