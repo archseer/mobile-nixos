@@ -5,18 +5,18 @@
 }:
 
 mobile-nixos.kernel-builder {
-  version = "5.10.0";
+  version = "5.11.0-rc5";
   configfile = ./config.aarch64;
   src = fetchFromGitHub {
     # https://github.com/megous/linux
     owner = "megous";
     repo = "linux";
-    # orange-pi-5.10
-    rev = "cf48c321c3ebd42d33234bf5fc1b7f8b4de86c95";
-    sha256 = "0p6gnxc80m7l3mw89fljpysayf269b09xk88z4nyfv92z0gn6yiv";
+    # orange-pi-5.11
+    rev = "64000c98293580985fdd2c7ec4af39afc93a136f";
+    sha256 = "1zkk7c324crbjwsfl5904l813m5pbggjbgra4g8rmpr8cgazw5d4";
   };
   patches = [
-    ./0001-dts-pinephone-Setup-default-on-and-panic-LEDs.patch
+    # ./0001-dts-pinephone-Setup-default-on-and-panic-LEDs.patch
   ];
 
   # Install *only* the desired FDTs
