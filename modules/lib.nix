@@ -5,7 +5,7 @@ let
   modules' = modules;
 
   # We can make use the normal NixOS evalConfig here.
-  evalConfig = import "${pkgs.path}/nixos/lib/eval-config.nix";
+  evalConfig = import "${toString pkgs.path}/nixos/lib/eval-config.nix";
 in
 {
   lib = {

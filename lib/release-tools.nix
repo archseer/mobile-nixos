@@ -2,7 +2,7 @@
 
 let
   # Original `evalConfig`
-  evalConfig = import "${pkgs.path}/nixos/lib/eval-config.nix";
+  evalConfig = import "${toString pkgs.path}/nixos/lib/eval-config.nix";
 in
 {
   # This should *never* rely on lib or pkgs.
