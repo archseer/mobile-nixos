@@ -22,7 +22,7 @@ in
     , additionalConfiguration ? {}
     , baseModules ? (
       (import ../modules/module-list.nix)
-      ++ (import "${pkgs.path}/nixos/modules/module-list.nix")
+      ++ (import "${toString pkgs.path}/nixos/modules/module-list.nix")
     )
   }: evalConfig {
     inherit baseModules;
