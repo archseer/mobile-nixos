@@ -1,8 +1,10 @@
-{ lib, pkgs, baseModules, modules, ... }:
+{ config, lib, pkgs, baseModules, modules, ... }:
 
 let
   # Keep modules from this eval around
   modules' = modules;
+
+  inherit (config.nixpkgs.localSystem) system;
 
   # We can make use the normal NixOS evalConfig here.
   evalConfig = import "${toString pkgs.path}/nixos/lib/eval-config.nix";
@@ -20,6 +22,9 @@ in
       in
       evalConfig (
         filteredArgs // {
+        # Needed for hermetic eval, otherwise `eval-config.nix` will try
+        # to use `builtins.currentSystem`.
+        inherit system;
         inherit baseModules;
         # Merge in this eval's modules with the argument's modules, and finally
         # with the given config.
