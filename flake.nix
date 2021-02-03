@@ -12,12 +12,7 @@
       nixosModules = builtins.listToAttrs (map (device:
         {
           name = device;
-          value = {
-            imports = [
-              (import (./devices + "/${device}"))
-            ]
-            ++ import ./modules/module-list.nix;
-          };
+          value = (import ./lib/configuration.nix { inherit device; });
         }
       ) all-devices);
     };
